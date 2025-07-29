@@ -1,0 +1,62 @@
+[
+  {
+    "question": "Qui a tué Isolde dans le lore de League of Legends ?",
+    "options": [
+      "Viego",
+      "Thresh",
+      "Kalista",
+      "Lucian"
+    ],
+    "answer": "Viego",
+    "difficulty": "difficile",
+    "category": "lore"
+  },
+  {
+    "question": "Quelle équipe a remporté les Worlds 2016 de League of Legends ?",
+    "options": [
+      "SK Telecom T1",
+      "Samsung Galaxy",
+      "ROX Tigers",
+      "G2 Esports"
+    ],
+    "answer": "SK Telecom T1",
+    "difficulty": "moyen",
+    "category": "e-sport"
+  },
+  {
+    "question": "Quel champion possède une compétence nommée 'Living Shadow' ?",
+    "options": [
+      "Zed",
+      "Shen",
+      "Nocturne",
+      "Kayn"
+    ],
+    "answer": "Zed",
+    "difficulty": "facile",
+    "category": "champion"
+  },
+  {
+    "question": "Quel est l’objet mythique typique des mages burst ?",
+    "options": [
+      "Écho de Luden",
+      "Liandry Tourment",
+      "Ceinture-Roquette Hextech",
+      "Riftmaker"
+    ],
+    "answer": "Écho de Luden",
+    "difficulty": "moyen",
+    "category": "item"
+  },
+  {
+    "question": "Quel est le rôle principal de Sejuani ?",
+    "options": [
+      "Top",
+      "Jungle",
+      "Mid",
+      "ADC"
+    ],
+    "answer": "Jungle",
+    "difficulty": "facile",
+    "category": "gameplay"
+  }
+]

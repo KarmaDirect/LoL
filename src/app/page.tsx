@@ -1,11 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { Users, Plus, RefreshCw, Info, Gamepad2, BarChart3, Crown, Target, Zap, Eye, Clock } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Users, Plus, RefreshCw, Info, Gamepad2, BarChart3, Crown, Target, Zap, Eye, Clock, Trophy } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 import { getStoredSummoners } from '@/services/storageService';
 import AddSummonerForm from '@/components/AddSummonerForm';
-import Header from '@/components/Header';
+
+import PlayerCard from '@/components/PlayerCard';
 import Link from 'next/link';
 
 export default function HomePage() {
@@ -25,7 +27,6 @@ export default function HomePage() {
 
   const handleAddSummoner = async (summonerName: string) => {
     try {
-      // Ajouter le summoner au localStorage
       const newSummoner = { name: summonerName };
       const currentSummoners = getStoredSummoners();
       const updatedSummoners = [...currentSummoners, newSummoner];
@@ -33,12 +34,17 @@ export default function HomePage() {
       localStorage.setItem('storedSummoners', JSON.stringify(updatedSummoners));
       setStoredSummoners(updatedSummoners);
       
-      // Charger les données du nouveau joueur
       await loadPlayerData(summonerName);
       setShowAddForm(false);
     } catch (error) {
       console.error('Erreur lors de l\'ajout du summoner:', error);
     }
+  };
+
+  const handleRemoveSummoner = (summonerName: string) => {
+    const updatedSummoners = storedSummoners.filter(s => s.name !== summonerName);
+    localStorage.setItem('storedSummoners', JSON.stringify(updatedSummoners));
+    setStoredSummoners(updatedSummoners);
   };
 
   const totalPlayers = storedSummoners.length;
@@ -48,84 +54,87 @@ export default function HomePage() {
     : 0;
   const totalGames = Object.values(playerRanks).reduce((sum, rank) => sum + rank.totalGames, 0);
 
-  const getRankColor = (tier: string) => {
-    switch (tier) {
-      case 'DIAMOND': return 'text-purple-400';
-      case 'PLATINUM': return 'text-blue-400';
-      case 'GOLD': return 'text-yellow-400';
-      case 'SILVER': return 'text-gray-400';
-      case 'BRONZE': return 'text-orange-600';
-      case 'IRON': return 'text-red-600';
-      default: return 'text-gray-400';
-    }
-  };
-
-  const getRoleIcon = (role: string) => {
-    switch (role) {
-      case 'TOP': return '🏔️';
-      case 'JUNGLE': return '🌲';
-      case 'MIDDLE': return '⚔️';
-      case 'BOTTOM': return '🏹';
-      case 'UTILITY': return '🛡️';
-      default: return '🎮';
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-gray-900">
-      <Header />
-      
-      <main className="w-full px-6 py-8">
+    <div className="min-h-screen bg-lol-dark">
+      <main className="max-w-7xl mx-auto px-6 py-8">
+        {/* Hero Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-12"
+        >
+          <h1 className="text-5xl font-bold text-gradient mb-4">
+            La Team
+          </h1>
+          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+            Suivez les performances de votre équipe LoL avec des analyses détaillées et des descriptions dynamiques
+          </p>
+        </motion.div>
+
         {/* Error Message */}
         {error && (
-          <div className="mb-8 p-4 bg-red-500/20 border border-red-500/30 rounded-lg">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8 p-4 bg-lol-red/20 border border-lol-red/30 rounded-lg"
+          >
             <div className="flex items-start gap-3">
-              <Info className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+              <Info className="w-5 h-5 text-lol-red flex-shrink-0 mt-0.5" />
               <div>
-                <span className="text-red-400 font-medium">{error}</span>
+                <span className="text-lol-red font-medium">{error}</span>
               </div>
             </div>
-          </div>
+          </motion.div>
         )}
 
         {/* Summary Stats */}
-        <div className="mb-8 grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-6 text-center hover:bg-gray-700/50 transition-colors">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="mb-8 grid grid-cols-1 md:grid-cols-4 gap-4"
+        >
+          <div className="glass-card-hover p-6 text-center">
             <div className="flex items-center justify-center mb-3">
-              <Users className="w-8 h-8 text-blue-400" />
+              <Users className="w-8 h-8 text-lol-blue" />
             </div>
             <div className="text-3xl font-bold text-white mb-1">{totalPlayers}</div>
             <div className="text-gray-400 text-sm">Joueurs ajoutés</div>
           </div>
           
-          <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-6 text-center hover:bg-gray-700/50 transition-colors">
+          <div className="glass-card-hover p-6 text-center">
             <div className="flex items-center justify-center mb-3">
-              <BarChart3 className="w-8 h-8 text-green-400" />
+              <BarChart3 className="w-8 h-8 text-lol-green" />
             </div>
             <div className="text-3xl font-bold text-white mb-1">{playersWithData}</div>
             <div className="text-gray-400 text-sm">Données chargées</div>
           </div>
           
-          <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-6 text-center hover:bg-gray-700/50 transition-colors">
+          <div className="glass-card-hover p-6 text-center">
             <div className="flex items-center justify-center mb-3">
-              <Crown className="w-8 h-8 text-yellow-400" />
+              <Crown className="w-8 h-8 text-lol-gold" />
             </div>
             <div className="text-3xl font-bold text-white mb-1">{averageWinrate}%</div>
             <div className="text-gray-400 text-sm">Winrate moyen</div>
           </div>
           
-          <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-6 text-center hover:bg-gray-700/50 transition-colors">
+          <div className="glass-card-hover p-6 text-center">
             <div className="flex items-center justify-center mb-3">
-              <Gamepad2 className="w-8 h-8 text-purple-400" />
+              <Gamepad2 className="w-8 h-8 text-lol-purple" />
             </div>
             <div className="text-3xl font-bold text-white mb-1">{totalGames}</div>
             <div className="text-gray-400 text-sm">Games totales</div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Add Player Section */}
-        <div className="mb-8">
-          <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="mb-8"
+        >
+          <div className="glass-card p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-white">Ajouter un joueur</h2>
               <div className="flex items-center gap-3">
@@ -134,23 +143,27 @@ export default function HomePage() {
                     MAJ: {lastUpdate}
                   </div>
                 )}
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={refreshData}
                   disabled={isLoading}
-                  className="flex items-center gap-2 bg-blue-500/20 hover:bg-blue-500/30 disabled:opacity-50 text-blue-400 px-4 py-2 rounded-lg transition-colors"
+                  className="lol-button-secondary disabled:opacity-50"
                 >
                   <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
                   <span className="text-sm font-medium">Actualiser</span>
-                </button>
-                <button
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => setShowAddForm(!showAddForm)}
-                  className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
+                  className="lol-button"
                 >
                   <Plus className="w-4 h-4" />
                   <span className="text-sm font-medium">
                     {showAddForm ? 'Annuler' : 'Ajouter'}
                   </span>
-                </button>
+                </motion.button>
               </div>
             </div>
             
@@ -158,157 +171,107 @@ export default function HomePage() {
               <AddSummonerForm onAddSummoner={handleAddSummoner} />
             )}
           </div>
-        </div>
+        </motion.div>
 
-        {/* Players Section */}
+        {/* Players Grid */}
         {totalPlayers > 0 ? (
-          <div className="space-y-8">
-            {storedSummoners.map((summoner) => {
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="grid grid-cols-1 lg:grid-cols-2 gap-8"
+          >
+            {storedSummoners.map((summoner, index) => {
               const rank = playerRanks[summoner.name];
               const stats = playerStats[summoner.name] || [];
               
               return (
-                <div key={summoner.name} className="bg-gray-800/50 border border-gray-700/50 rounded-lg overflow-hidden">
-                  {/* Player Header */}
-                  <div className="p-6 border-b border-gray-700/50">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="p-3 bg-blue-500/20 rounded-xl">
-                          <Gamepad2 className="w-6 h-6 text-blue-400" />
-                        </div>
-                        <div>
-                          <h3 className="text-xl font-bold text-white">{summoner.name}</h3>
-                          {rank && (
-                            <div className="flex items-center gap-2 mt-1">
-                              <span className={`font-semibold ${getRankColor(rank.tier)}`}>
-                                {rank.tier} {rank.rank}
-                              </span>
-                              <span className="text-white">{rank.leaguePoints} LP</span>
-                              <span className="text-gray-400">•</span>
-                              <span className="text-white">{rank.winrate}% WR</span>
-                              <span className="text-gray-400">•</span>
-                              <span className="text-white">{rank.totalGames} games</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      
-                      <button
-                        onClick={() => {
-                          const updatedSummoners = storedSummoners.filter(s => s.name !== summoner.name);
-                          localStorage.setItem('storedSummoners', JSON.stringify(updatedSummoners));
-                          setStoredSummoners(updatedSummoners);
-                        }}
-                        className="text-red-400 hover:text-red-300 transition-colors p-2"
-                      >
-                        <span className="text-sm">Supprimer</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Recent Games */}
-                  {stats.length > 0 ? (
-                    <div className="p-6">
-                      <h4 className="text-lg font-semibold text-white mb-4">3 dernières games (Solo/Duo)</h4>
-                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                        {stats.map((game, index) => (
-                          <div key={index} className={`bg-gray-700/30 rounded-lg p-4 border ${
-                            game.win ? 'border-green-500/30' : 'border-red-500/30'
-                          } hover:bg-gray-600/30 transition-colors`}>
-                            {/* Game Header */}
-                            <div className="flex items-center justify-between mb-3">
-                              <div className="flex items-center gap-2">
-                                <span className="text-lg">{getRoleIcon(game.role)}</span>
-                                <span className="font-semibold text-white">{game.championName}</span>
-                              </div>
-                              <div className={`px-3 py-1 rounded-full text-xs font-bold ${
-                                game.win 
-                                  ? 'bg-green-500/20 text-green-400' 
-                                  : 'bg-red-500/20 text-red-400'
-                              }`}>
-                                {game.win ? 'VICTOIRE' : 'DÉFAITE'}
-                              </div>
-                            </div>
-
-                            {/* Stats Grid */}
-                            <div className="grid grid-cols-2 gap-3 mb-3">
-                              <div className="text-center">
-                                <div className="text-lg font-bold text-white">{game.kills}/{game.deaths}/{game.assists}</div>
-                                <div className="text-xs text-gray-400">K/D/A</div>
-                              </div>
-                              <div className="text-center">
-                                <div className="text-lg font-bold text-white">{game.csPerMinute}</div>
-                                <div className="text-xs text-gray-400">CS/min</div>
-                              </div>
-                              <div className="text-center">
-                                <div className="text-lg font-bold text-white">{Math.round(game.damageDealt / 1000)}k</div>
-                                <div className="text-xs text-gray-400">Damage</div>
-                              </div>
-                              <div className="text-center">
-                                <div className="text-lg font-bold text-white">{game.visionScore}</div>
-                                <div className="text-xs text-gray-400">Vision</div>
-                              </div>
-                            </div>
-
-                            {/* Impact Score */}
-                            <div className="mb-3">
-                              <div className="flex items-center justify-between mb-1">
-                                <span className="text-sm text-gray-400">Impact Score</span>
-                                <span className="text-sm font-bold text-white">{game.impactScore}/100</span>
-                              </div>
-                              <div className="w-full bg-gray-600 rounded-full h-2">
-                                <div 
-                                  className={`h-2 rounded-full transition-all duration-300 ${
-                                    game.impactScore >= 70 ? 'bg-green-500' :
-                                    game.impactScore >= 50 ? 'bg-yellow-500' :
-                                    game.impactScore >= 30 ? 'bg-orange-500' : 'bg-red-500'
-                                  }`}
-                                  style={{ width: `${game.impactScore}%` }}
-                                ></div>
-                              </div>
-                            </div>
-
-                            {/* Game Duration */}
-                            <div className="flex items-center gap-2 mb-3 text-sm text-gray-400">
-                              <Clock className="w-4 h-4" />
-                              <span>{Math.round(game.gameDuration / 60)}min</span>
-                            </div>
-
-                            {/* Dynamic Description */}
-                            <div className="text-sm text-gray-300 italic leading-relaxed">
-                              {game.description}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="p-6 text-center text-gray-400">
-                      <Gamepad2 className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                      <p>Chargement des données...</p>
-                    </div>
-                  )}
-                </div>
+                <motion.div
+                  key={summoner.name}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 * index }}
+                >
+                  <PlayerCard
+                    summonerName={summoner.name}
+                    rank={rank || { summonerName: summoner.name, tier: 'UNRANKED', rank: '', leaguePoints: 0, wins: 0, losses: 0, winrate: 0, totalGames: 0 }}
+                    stats={stats}
+                    onRemove={() => handleRemoveSummoner(summoner.name)}
+                  />
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         ) : (
-          <div className="text-center py-16">
-            <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-12 max-w-md mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="text-center py-16"
+          >
+            <div className="glass-card p-12 max-w-md mx-auto">
               <Users className="w-16 h-16 mx-auto mb-6 text-gray-400 opacity-50" />
               <h3 className="text-xl font-bold text-white mb-4">Aucun joueur ajouté</h3>
               <p className="text-gray-400 mb-6">
                 Commencez par ajouter des joueurs de votre équipe pour suivre leurs performances et voir le classement.
               </p>
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => setShowAddForm(true)}
-                className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg transition-colors mx-auto"
+                className="lol-button mx-auto"
               >
                 <Plus className="w-5 h-5" />
                 <span className="font-medium">Ajouter votre premier joueur</span>
-              </button>
+              </motion.button>
             </div>
-          </div>
+          </motion.div>
+        )}
+
+        {/* Quick Actions */}
+        {totalPlayers > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="mt-12 text-center"
+          >
+            <div className="glass-card p-6">
+              <h3 className="text-lg font-semibold text-white mb-4">Actions rapides</h3>
+              <div className="flex flex-wrap justify-center gap-4">
+                <Link href="/leaderboard">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="lol-button-secondary"
+                  >
+                    <Trophy className="w-4 h-4" />
+                    <span>Voir le classement</span>
+                  </motion.button>
+                </Link>
+                <Link href="/quiz">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="lol-button-secondary"
+                  >
+                    <Target className="w-4 h-4" />
+                    <span>Quiz LoL</span>
+                  </motion.button>
+                </Link>
+                <Link href="/tierlist">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="lol-button-secondary"
+                  >
+                    <Users className="w-4 h-4" />
+                    <span>Tier List</span>
+                  </motion.button>
+                </Link>
+              </div>
+            </div>
+          </motion.div>
         )}
       </main>
     </div>

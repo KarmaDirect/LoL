@@ -2,15 +2,101 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Styles de base */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --lol-gold: #FFD700;
+  --lol-blue: #1E3A8A;
+  --lol-purple: #7C3AED;
+  --lol-red: #DC2626;
+  --lol-green: #16A34A;
+  --lol-dark: #0F0F23;
+  --lol-darker: #0A0A1A;
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
   }
   
   body {
-    @apply bg-gray-900 text-white;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    @apply bg-lol-dark text-white font-['Poppins'];
+    background-image: 
+      radial-gradient(circle at 20% 80%, rgba(124, 58, 237, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(30, 58, 138, 0.1) 0%, transparent 50%);
+    min-height: 100vh;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-xl;
+  }
+  
+  .glass-card-hover {
+    @apply glass-card hover:border-lol-purple/30 hover:bg-white/10 transition-all duration-300;
+  }
+  
+  .lol-button {
+    @apply bg-gradient-to-r from-lol-blue to-lol-purple hover:from-lol-purple hover:to-lol-blue 
+           text-white font-semibold px-6 py-3 rounded-xl transition-all duration-300 
+           hover:scale-105 hover:shadow-lg hover:shadow-lol-purple/25 active:scale-95;
+  }
+  
+  .lol-button-secondary {
+    @apply bg-white/5 hover:bg-white/10 text-white font-medium px-4 py-2 rounded-lg 
+           border border-white/10 hover:border-lol-purple/30 transition-all duration-300;
+  }
+  
+  .rank-badge {
+    @apply px-3 py-1 rounded-full text-xs font-bold;
+  }
+  
+  .impact-score {
+    @apply w-full h-2 rounded-full bg-gray-700 overflow-hidden;
+  }
+  
+  .impact-fill {
+    @apply h-full transition-all duration-500;
+  }
+  
+  .tier-list-item {
+    @apply glass-card p-4 cursor-move hover:scale-105 transition-all duration-200;
+  }
+  
+  .quiz-option {
+    @apply w-full p-4 rounded-lg text-left transition-all duration-300 
+           bg-white/5 hover:bg-white/10 border border-white/10;
+  }
+  
+  .quiz-option-correct {
+    @apply bg-lol-green/20 border-lol-green/50;
+  }
+  
+  .quiz-option-incorrect {
+    @apply bg-lol-red/20 border-lol-red/50;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-gradient-to-r from-lol-gold to-lol-purple bg-clip-text text-transparent;
+  }
+  
+  .bg-gradient-lol {
+    @apply bg-gradient-to-br from-lol-blue/20 to-lol-purple/20;
+  }
+  
+  .border-gradient {
+    @apply border border-transparent bg-gradient-to-r from-lol-blue to-lol-purple bg-clip-border;
+  }
+  
+  .shadow-lol {
+    box-shadow: 0 0 20px rgba(124, 58, 237, 0.3);
+  }
+  
+  .shadow-lol-lg {
+    box-shadow: 0 0 40px rgba(124, 58, 237, 0.4);
   }
 }
 
@@ -28,10 +114,34 @@
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-500;
+  @apply bg-lol-purple;
 }
 
 /* Sélection de texte */
 ::selection {
-  @apply bg-blue-500/30 text-white;
+  @apply bg-lol-purple/30 text-white;
+}
+
+/* Focus visible */
+*:focus-visible {
+  @apply outline-none ring-2 ring-lol-purple/50 ring-offset-2 ring-offset-lol-dark;
+}
+
+/* Animations personnalisées */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 5px rgba(124, 58, 237, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(124, 58, 237, 0.6); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite;
 }
