@@ -52,7 +52,7 @@ export default function AddSummonerForm({ onAddSummoner }: AddSummonerFormProps)
             value={summonerName}
             onChange={(e) => setSummonerName(e.target.value)}
             placeholder="Billy#V1EGO"
-            className="flex-1 bg-gray-700/50 border border-gray-600/50 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent"
+            className="flex-1 bg-gray-700/50 border border-gray-600/50 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all duration-300"
             disabled={isLoading}
           />
           <button

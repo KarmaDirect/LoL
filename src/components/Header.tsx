@@ -40,7 +40,7 @@ export default function Header() {
             <Link href="/leaderboard">
               <button className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all duration-300 ${
                 pathname === '/leaderboard' 
-                  ? 'bg-yellow-500 text-white shadow-lg shadow-yellow-500/25' 
+                  ? 'bg-purple-500 text-white shadow-lg shadow-purple-500/25' 
                   : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/50 hover:text-white'
               }`}>
                 <Trophy className="w-4 h-4" />
