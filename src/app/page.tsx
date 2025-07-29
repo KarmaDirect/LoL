@@ -1,103 +1,316 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { useState } from 'react';
+import { Users, Plus, RefreshCw, Info, Gamepad2, BarChart3, Crown, Target, Zap, Eye, Clock } from 'lucide-react';
+import { useApp } from '@/contexts/AppContext';
+import { getStoredSummoners } from '@/services/storageService';
+import AddSummonerForm from '@/components/AddSummonerForm';
+import Header from '@/components/Header';
+import Link from 'next/link';
+
+export default function HomePage() {
+  const {
+    storedSummoners,
+    playerRanks,
+    playerStats,
+    isLoading,
+    error,
+    loadPlayerData,
+    refreshData,
+    lastUpdate,
+    setStoredSummoners
+  } = useApp();
+
+  const [showAddForm, setShowAddForm] = useState(false);
+
+  const handleAddSummoner = async (summonerName: string) => {
+    try {
+      // Ajouter le summoner au localStorage
+      const newSummoner = { name: summonerName };
+      const currentSummoners = getStoredSummoners();
+      const updatedSummoners = [...currentSummoners, newSummoner];
+      
+      localStorage.setItem('storedSummoners', JSON.stringify(updatedSummoners));
+      setStoredSummoners(updatedSummoners);
+      
+      // Charger les données du nouveau joueur
+      await loadPlayerData(summonerName);
+      setShowAddForm(false);
+    } catch (error) {
+      console.error('Erreur lors de l\'ajout du summoner:', error);
+    }
+  };
+
+  const totalPlayers = storedSummoners.length;
+  const playersWithData = Object.keys(playerRanks).length;
+  const averageWinrate = playersWithData > 0 
+    ? Math.round(Object.values(playerRanks).reduce((sum, rank) => sum + rank.winrate, 0) / playersWithData)
+    : 0;
+  const totalGames = Object.values(playerRanks).reduce((sum, rank) => sum + rank.totalGames, 0);
+
+  const getRankColor = (tier: string) => {
+    switch (tier) {
+      case 'DIAMOND': return 'text-purple-400';
+      case 'PLATINUM': return 'text-blue-400';
+      case 'GOLD': return 'text-yellow-400';
+      case 'SILVER': return 'text-gray-400';
+      case 'BRONZE': return 'text-orange-600';
+      case 'IRON': return 'text-red-600';
+      default: return 'text-gray-400';
+    }
+  };
+
+  const getRoleIcon = (role: string) => {
+    switch (role) {
+      case 'TOP': return '🏔️';
+      case 'JUNGLE': return '🌲';
+      case 'MIDDLE': return '⚔️';
+      case 'BOTTOM': return '🏹';
+      case 'UTILITY': return '🛡️';
+      default: return '🎮';
+    }
+  };
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="min-h-screen bg-gray-900">
+      <Header />
+      
+      <main className="w-full px-6 py-8">
+        {/* Error Message */}
+        {error && (
+          <div className="mb-8 p-4 bg-red-500/20 border border-red-500/30 rounded-lg">
+            <div className="flex items-start gap-3">
+              <Info className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <span className="text-red-400 font-medium">{error}</span>
+              </div>
+            </div>
+          </div>
+        )}
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+        {/* Summary Stats */}
+        <div className="mb-8 grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-6 text-center hover:bg-gray-700/50 transition-colors">
+            <div className="flex items-center justify-center mb-3">
+              <Users className="w-8 h-8 text-blue-400" />
+            </div>
+            <div className="text-3xl font-bold text-white mb-1">{totalPlayers}</div>
+            <div className="text-gray-400 text-sm">Joueurs ajoutés</div>
+          </div>
+          
+          <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-6 text-center hover:bg-gray-700/50 transition-colors">
+            <div className="flex items-center justify-center mb-3">
+              <BarChart3 className="w-8 h-8 text-green-400" />
+            </div>
+            <div className="text-3xl font-bold text-white mb-1">{playersWithData}</div>
+            <div className="text-gray-400 text-sm">Données chargées</div>
+          </div>
+          
+          <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-6 text-center hover:bg-gray-700/50 transition-colors">
+            <div className="flex items-center justify-center mb-3">
+              <Crown className="w-8 h-8 text-yellow-400" />
+            </div>
+            <div className="text-3xl font-bold text-white mb-1">{averageWinrate}%</div>
+            <div className="text-gray-400 text-sm">Winrate moyen</div>
+          </div>
+          
+          <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-6 text-center hover:bg-gray-700/50 transition-colors">
+            <div className="flex items-center justify-center mb-3">
+              <Gamepad2 className="w-8 h-8 text-purple-400" />
+            </div>
+            <div className="text-3xl font-bold text-white mb-1">{totalGames}</div>
+            <div className="text-gray-400 text-sm">Games totales</div>
+          </div>
         </div>
+
+        {/* Add Player Section */}
+        <div className="mb-8">
+          <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-white">Ajouter un joueur</h2>
+              <div className="flex items-center gap-3">
+                {lastUpdate && (
+                  <div className="text-sm text-gray-400">
+                    MAJ: {lastUpdate}
+                  </div>
+                )}
+                <button
+                  onClick={refreshData}
+                  disabled={isLoading}
+                  className="flex items-center gap-2 bg-blue-500/20 hover:bg-blue-500/30 disabled:opacity-50 text-blue-400 px-4 py-2 rounded-lg transition-colors"
+                >
+                  <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+                  <span className="text-sm font-medium">Actualiser</span>
+                </button>
+                <button
+                  onClick={() => setShowAddForm(!showAddForm)}
+                  className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span className="text-sm font-medium">
+                    {showAddForm ? 'Annuler' : 'Ajouter'}
+                  </span>
+                </button>
+              </div>
+            </div>
+            
+            {showAddForm && (
+              <AddSummonerForm onAddSummoner={handleAddSummoner} />
+            )}
+          </div>
+        </div>
+
+        {/* Players Section */}
+        {totalPlayers > 0 ? (
+          <div className="space-y-8">
+            {storedSummoners.map((summoner) => {
+              const rank = playerRanks[summoner.name];
+              const stats = playerStats[summoner.name] || [];
+              
+              return (
+                <div key={summoner.name} className="bg-gray-800/50 border border-gray-700/50 rounded-lg overflow-hidden">
+                  {/* Player Header */}
+                  <div className="p-6 border-b border-gray-700/50">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="p-3 bg-blue-500/20 rounded-xl">
+                          <Gamepad2 className="w-6 h-6 text-blue-400" />
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-bold text-white">{summoner.name}</h3>
+                          {rank && (
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className={`font-semibold ${getRankColor(rank.tier)}`}>
+                                {rank.tier} {rank.rank}
+                              </span>
+                              <span className="text-white">{rank.leaguePoints} LP</span>
+                              <span className="text-gray-400">•</span>
+                              <span className="text-white">{rank.winrate}% WR</span>
+                              <span className="text-gray-400">•</span>
+                              <span className="text-white">{rank.totalGames} games</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <button
+                        onClick={() => {
+                          const updatedSummoners = storedSummoners.filter(s => s.name !== summoner.name);
+                          localStorage.setItem('storedSummoners', JSON.stringify(updatedSummoners));
+                          setStoredSummoners(updatedSummoners);
+                        }}
+                        className="text-red-400 hover:text-red-300 transition-colors p-2"
+                      >
+                        <span className="text-sm">Supprimer</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Recent Games */}
+                  {stats.length > 0 ? (
+                    <div className="p-6">
+                      <h4 className="text-lg font-semibold text-white mb-4">3 dernières games (Solo/Duo)</h4>
+                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                        {stats.map((game, index) => (
+                          <div key={index} className={`bg-gray-700/30 rounded-lg p-4 border ${
+                            game.win ? 'border-green-500/30' : 'border-red-500/30'
+                          } hover:bg-gray-600/30 transition-colors`}>
+                            {/* Game Header */}
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center gap-2">
+                                <span className="text-lg">{getRoleIcon(game.role)}</span>
+                                <span className="font-semibold text-white">{game.championName}</span>
+                              </div>
+                              <div className={`px-3 py-1 rounded-full text-xs font-bold ${
+                                game.win 
+                                  ? 'bg-green-500/20 text-green-400' 
+                                  : 'bg-red-500/20 text-red-400'
+                              }`}>
+                                {game.win ? 'VICTOIRE' : 'DÉFAITE'}
+                              </div>
+                            </div>
+
+                            {/* Stats Grid */}
+                            <div className="grid grid-cols-2 gap-3 mb-3">
+                              <div className="text-center">
+                                <div className="text-lg font-bold text-white">{game.kills}/{game.deaths}/{game.assists}</div>
+                                <div className="text-xs text-gray-400">K/D/A</div>
+                              </div>
+                              <div className="text-center">
+                                <div className="text-lg font-bold text-white">{game.csPerMinute}</div>
+                                <div className="text-xs text-gray-400">CS/min</div>
+                              </div>
+                              <div className="text-center">
+                                <div className="text-lg font-bold text-white">{Math.round(game.damageDealt / 1000)}k</div>
+                                <div className="text-xs text-gray-400">Damage</div>
+                              </div>
+                              <div className="text-center">
+                                <div className="text-lg font-bold text-white">{game.visionScore}</div>
+                                <div className="text-xs text-gray-400">Vision</div>
+                              </div>
+                            </div>
+
+                            {/* Impact Score */}
+                            <div className="mb-3">
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="text-sm text-gray-400">Impact Score</span>
+                                <span className="text-sm font-bold text-white">{game.impactScore}/100</span>
+                              </div>
+                              <div className="w-full bg-gray-600 rounded-full h-2">
+                                <div 
+                                  className={`h-2 rounded-full transition-all duration-300 ${
+                                    game.impactScore >= 70 ? 'bg-green-500' :
+                                    game.impactScore >= 50 ? 'bg-yellow-500' :
+                                    game.impactScore >= 30 ? 'bg-orange-500' : 'bg-red-500'
+                                  }`}
+                                  style={{ width: `${game.impactScore}%` }}
+                                ></div>
+                              </div>
+                            </div>
+
+                            {/* Game Duration */}
+                            <div className="flex items-center gap-2 mb-3 text-sm text-gray-400">
+                              <Clock className="w-4 h-4" />
+                              <span>{Math.round(game.gameDuration / 60)}min</span>
+                            </div>
+
+                            {/* Dynamic Description */}
+                            <div className="text-sm text-gray-300 italic leading-relaxed">
+                              {game.description}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-6 text-center text-gray-400">
+                      <Gamepad2 className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                      <p>Chargement des données...</p>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="text-center py-16">
+            <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-12 max-w-md mx-auto">
+              <Users className="w-16 h-16 mx-auto mb-6 text-gray-400 opacity-50" />
+              <h3 className="text-xl font-bold text-white mb-4">Aucun joueur ajouté</h3>
+              <p className="text-gray-400 mb-6">
+                Commencez par ajouter des joueurs de votre équipe pour suivre leurs performances et voir le classement.
+              </p>
+              <button
+                onClick={() => setShowAddForm(true)}
+                className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg transition-colors mx-auto"
+              >
+                <Plus className="w-5 h-5" />
+                <span className="font-medium">Ajouter votre premier joueur</span>
+              </button>
+            </div>
+          </div>
+        )}
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
     </div>
   );
 }
