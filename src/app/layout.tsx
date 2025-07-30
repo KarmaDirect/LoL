@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/Header';
@@ -11,7 +11,11 @@ export const metadata: Metadata = {
   description: 'Suivez les performances de votre équipe LoL avec des analyses détaillées et des descriptions dynamiques',
   keywords: 'League of Legends, LoL, gaming, performance, tracking, squad, team',
   authors: [{ name: 'League Squad Team' }],
-  viewport: 'width=device-width, initial-scale=1',
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
 };
 
 export default function RootLayout({

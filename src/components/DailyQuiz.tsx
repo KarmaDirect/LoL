@@ -1,13 +1,21 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Brain, CheckCircle, XCircle, Trophy, ArrowLeft, RotateCcw, Users, Clock, Target, Crown } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Brain, CheckCircle, XCircle, Trophy, ArrowLeft, RotateCcw, Users, Clock, Target, Crown, Calendar, Star, Zap } from 'lucide-react';
 import Link from 'next/link';
-import { getMixedQuestions, QuizQuestion } from '@/data/quizQuestions';
-import { saveQuizScore, getCurrentQuizLeaderboard, hasPlayerPlayedToday, QuizScore } from '@/services/quizService';
+import { QuizQuestionFromJSON, QuizScore, QuizLeaderboard, PlayerStats } from '@/types/quiz';
+import { 
+  getCurrentDayQuestions, 
+  saveDailyQuizScore, 
+  getCurrentDayLeaderboard, 
+  hasPlayerPlayedToday, 
+  getPlayerStats,
+  getCurrentDayNumber,
+  getDailyQuizStats
+} from '@/services/dailyQuizService';
 
-export default function QuizPage() {
+export default function DailyQuiz() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [score, setScore] = useState(0);
@@ -16,18 +24,28 @@ export default function QuizPage() {
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [playerName, setPlayerName] = useState('');
   const [showNameInput, setShowNameInput] = useState(true);
-  const [questions, setQuestions] = useState<QuizQuestion[]>([]);
-  const [leaderboard, setLeaderboard] = useState<any>(null);
+  const [questions, setQuestions] = useState<QuizQuestionFromJSON[]>([]);
+  const [leaderboard, setLeaderboard] = useState<QuizLeaderboard | null>(null);
+  const [playerStats, setPlayerStats] = useState<PlayerStats | null>(null);
   const [timeSpent, setTimeSpent] = useState(0);
+  const [currentDay, setCurrentDay] = useState(1);
+  const [globalStats, setGlobalStats] = useState<any>(null);
 
   useEffect(() => {
     // Charger les questions du jour
-    const dailyQuestions = getMixedQuestions(20);
+    const dailyQuestions = getCurrentDayQuestions();
     setQuestions(dailyQuestions);
     
     // Charger le leaderboard actuel
-    const currentLeaderboard = getCurrentQuizLeaderboard();
+    const currentLeaderboard = getCurrentDayLeaderboard();
     setLeaderboard(currentLeaderboard);
+    
+    // Charger les stats globales
+    const stats = getDailyQuizStats();
+    setGlobalStats(stats);
+    
+    // Obtenir le jour actuel
+    setCurrentDay(getCurrentDayNumber());
   }, []);
 
   useEffect(() => {
@@ -57,7 +75,7 @@ export default function QuizPage() {
 
   const handleAnswer = (answerIndex: number) => {
     setSelectedAnswer(answerIndex);
-    if (answerIndex === questions[currentQuestion].correctAnswer) {
+    if (questions[currentQuestion].options[answerIndex] === questions[currentQuestion].answer) {
       setScore(score + 1);
     }
     setShowResult(true);
@@ -74,18 +92,21 @@ export default function QuizPage() {
       const finalScore: QuizScore = {
         id: '',
         playerName: playerName.trim(),
-        score: Math.round((score / questions.length) * 100),
+        score: score,
         totalQuestions: questions.length,
         correctAnswers: score,
         date: new Date().toISOString(),
         timeSpent,
-        difficulty: 'Mixte'
+        dayNumber: currentDay
       };
-      saveQuizScore(finalScore);
+      saveDailyQuizScore(finalScore);
       
-      // Recharger le leaderboard
-      const updatedLeaderboard = getCurrentQuizLeaderboard();
+      // Recharger le leaderboard et les stats
+      const updatedLeaderboard = getCurrentDayLeaderboard();
       setLeaderboard(updatedLeaderboard);
+      
+      const stats = getPlayerStats(playerName.trim());
+      setPlayerStats(stats);
     }
   };
 
@@ -99,25 +120,43 @@ export default function QuizPage() {
     setPlayerName('');
     setStartTime(null);
     setTimeSpent(0);
-    
-    // Nouvelles questions
-    const newQuestions = getMixedQuestions(20);
-    setQuestions(newQuestions);
+    setPlayerStats(null);
   };
 
   const getScoreMessage = (score: number, total: number) => {
     const percentage = (score / total) * 100;
-    if (percentage >= 90) return "🎉 Expert du lore ! Tu connais tout sur l'univers de LoL !";
-    if (percentage >= 70) return "👍 Très bien ! Tu as une excellente connaissance du lore !";
-    if (percentage >= 50) return "👌 Pas mal ! Tu connais bien les bases du lore !";
-    if (percentage >= 30) return "😅 Moyen... Il faut réviser un peu le lore !";
-    return "💀 Ouch... Il faut vraiment réviser le lore de LoL !";
+    if (percentage >= 90) return "🎉 Expert absolu ! Tu maîtrises parfaitement League of Legends !";
+    if (percentage >= 80) return "🌟 Excellent ! Tu as une connaissance exceptionnelle du jeu !";
+    if (percentage >= 70) return "👍 Très bien ! Tu connais très bien l'univers de LoL !";
+    if (percentage >= 60) return "👌 Bien joué ! Tu as une bonne maîtrise du jeu !";
+    if (percentage >= 50) return "😊 Pas mal ! Tu connais les bases de LoL !";
+    if (percentage >= 40) return "😅 Moyen... Il faut réviser un peu !";
+    if (percentage >= 30) return "😬 Difficile... Il faut vraiment réviser !";
+    return "💀 Ouch... Il faut vraiment se remettre à LoL !";
   };
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case 'facile': return 'text-green-400';
+      case 'moyen': return 'text-yellow-400';
+      case 'difficile': return 'text-red-400';
+      default: return 'text-gray-400';
+    }
+  };
+
+  const getDifficultyIcon = (difficulty: string) => {
+    switch (difficulty) {
+      case 'facile': return '🟢';
+      case 'moyen': return '🟡';
+      case 'difficile': return '🔴';
+      default: return '⚪';
+    }
   };
 
   if (showNameInput) {
@@ -130,9 +169,12 @@ export default function QuizPage() {
             className="glass-card p-8"
           >
             <div className="text-center mb-8">
-              <Brain className="w-16 h-16 mx-auto mb-4 text-lol-purple" />
-              <h1 className="text-3xl font-bold text-gradient mb-2">Quiz LoL Lore</h1>
-              <p className="text-gray-400">Testez vos connaissances sur l'univers de League of Legends</p>
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <Brain className="w-16 h-16 text-lol-purple" />
+                <Calendar className="w-12 h-12 text-lol-blue" />
+              </div>
+              <h1 className="text-3xl font-bold text-gradient mb-2">Quiz Quotidien LoL</h1>
+              <p className="text-gray-400">Jour {currentDay}/10 - Testez vos connaissances sur League of Legends</p>
             </div>
 
             <div className="max-w-md mx-auto">
@@ -149,29 +191,60 @@ export default function QuizPage() {
               </div>
 
               <div className="mb-6 p-4 bg-white/5 rounded-lg">
-                <h3 className="text-white font-semibold mb-2">Informations du quiz</h3>
+                <h3 className="text-white font-semibold mb-2 flex items-center gap-2">
+                  <Target className="w-4 h-4 text-lol-purple" />
+                  Informations du quiz
+                </h3>
                 <div className="text-sm text-gray-400 space-y-1">
-                  <div>• 20 questions mixtes (facile, moyen, difficile)</div>
+                  <div>• 10 questions par jour (rotation sur 10 jours)</div>
                   <div>• Une seule participation par jour</div>
+                  <div>• Score sur 10 points</div>
                   <div>• Leaderboard en temps réel</div>
-                  <div>• Score sur 100 points</div>
+                  <div>• Progression automatique quotidienne</div>
                 </div>
               </div>
+
+              {globalStats && (
+                <div className="mb-6 p-4 bg-white/5 rounded-lg">
+                  <h3 className="text-white font-semibold mb-2 flex items-center gap-2">
+                    <Zap className="w-4 h-4 text-lol-gold" />
+                    Statistiques globales
+                  </h3>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="text-center">
+                      <div className="text-lol-gold font-bold">{globalStats.totalParticipants}</div>
+                      <div className="text-gray-400">Participants</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-lol-gold font-bold">{globalStats.averageScore}/10</div>
+                      <div className="text-gray-400">Score moyen</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-lol-gold font-bold">{globalStats.bestScore}/10</div>
+                      <div className="text-gray-400">Meilleur score</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-lol-gold font-bold">{globalStats.totalDays}</div>
+                      <div className="text-gray-400">Jours actifs</div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {leaderboard && (
                 <div className="mb-6 p-4 bg-white/5 rounded-lg">
                   <h3 className="text-white font-semibold mb-2 flex items-center gap-2">
                     <Trophy className="w-4 h-4 text-lol-gold" />
-                    Leaderboard du jour
+                    Leaderboard du jour {currentDay}
                   </h3>
                   <div className="space-y-2">
-                    {leaderboard.scores.slice(0, 5).map((score: any, index: number) => (
+                    {leaderboard.scores.slice(0, 5).map((score, index) => (
                       <div key={score.id} className="flex items-center justify-between text-sm">
                         <div className="flex items-center gap-2">
                           {index === 0 && <Crown className="w-4 h-4 text-lol-gold" />}
                           <span className="text-white">{score.playerName}</span>
                         </div>
-                        <span className="text-lol-gold font-bold">{score.score}/100</span>
+                        <span className="text-lol-gold font-bold">{score.score}/10</span>
                       </div>
                     ))}
                   </div>
@@ -205,9 +278,12 @@ export default function QuizPage() {
         >
           {/* Header */}
           <div className="text-center mb-8">
-            <Brain className="w-16 h-16 mx-auto mb-4 text-lol-purple" />
-            <h1 className="text-3xl font-bold text-gradient mb-2">Quiz LoL Lore</h1>
-            <p className="text-gray-400">Joueur: {playerName}</p>
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <Brain className="w-16 h-16 text-lol-purple" />
+              <Calendar className="w-12 h-12 text-lol-blue" />
+            </div>
+            <h1 className="text-3xl font-bold text-gradient mb-2">Quiz Quotidien LoL</h1>
+            <p className="text-gray-400">Jour {currentDay}/10 - Joueur: {playerName}</p>
           </div>
 
           {!quizCompleted ? (
@@ -217,7 +293,7 @@ export default function QuizPage() {
                 <div className="flex justify-between items-center mb-4">
                   <span className="text-gray-400">Question {currentQuestion + 1}/{questions.length}</span>
                   <div className="flex items-center gap-4">
-                    <span className="text-lol-gold font-bold">Score: {score}</span>
+                    <span className="text-lol-gold font-bold">Score: {score}/10</span>
                     <div className="flex items-center gap-1 text-gray-400">
                       <Clock className="w-4 h-4" />
                       <span>{formatTime(timeSpent)}</span>
@@ -235,13 +311,22 @@ export default function QuizPage() {
               </div>
 
               {/* Question */}
-              <h2 className="text-xl font-semibold text-white mb-6">
-                {questions[currentQuestion]?.question}
-              </h2>
+              <div className="mb-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className={`text-sm font-medium ${getDifficultyColor(questions[currentQuestion]?.difficulty)}`}>
+                    {getDifficultyIcon(questions[currentQuestion]?.difficulty)} {questions[currentQuestion]?.difficulty}
+                  </span>
+                  <span className="text-sm text-gray-400">•</span>
+                  <span className="text-sm text-gray-400">{questions[currentQuestion]?.category}</span>
+                </div>
+                <h2 className="text-xl font-semibold text-white">
+                  {questions[currentQuestion]?.question}
+                </h2>
+              </div>
 
               {/* Options */}
               <div className="space-y-3">
-                {questions[currentQuestion]?.choices.map((choice, index) => (
+                {questions[currentQuestion]?.options.map((option, index) => (
                   <motion.button
                     key={index}
                     whileHover={{ scale: 1.02 }}
@@ -252,10 +337,10 @@ export default function QuizPage() {
                       selectedAnswer === null
                         ? 'quiz-option'
                         : selectedAnswer === index
-                        ? index === questions[currentQuestion].correctAnswer
+                        ? option === questions[currentQuestion].answer
                           ? 'quiz-option-correct'
                           : 'quiz-option-incorrect'
-                        : index === questions[currentQuestion].correctAnswer
+                        : option === questions[currentQuestion].answer
                         ? 'quiz-option-correct'
                         : 'quiz-option'
                     }`}
@@ -263,14 +348,14 @@ export default function QuizPage() {
                     <div className="flex items-center gap-3">
                       {selectedAnswer !== null && (
                         <>
-                          {index === questions[currentQuestion].correctAnswer ? (
+                          {option === questions[currentQuestion].answer ? (
                             <CheckCircle className="w-5 h-5 text-lol-green" />
                           ) : selectedAnswer === index ? (
                             <XCircle className="w-5 h-5 text-lol-red" />
                           ) : null}
                         </>
                       )}
-                      <span className="text-white">{choice}</span>
+                      <span className="text-white">{option}</span>
                     </div>
                   </motion.button>
                 ))}
@@ -283,12 +368,21 @@ export default function QuizPage() {
                   animate={{ opacity: 1, y: 0 }}
                   className="mt-6 p-4 bg-white/5 rounded-lg border border-white/10"
                 >
-                  <p className="text-gray-300 mb-4">{questions[currentQuestion].explanation}</p>
+                  <div className="text-center mb-4">
+                    {questions[currentQuestion].options[selectedAnswer!] === questions[currentQuestion].answer ? (
+                      <div className="text-lol-green font-semibold">✅ Correct !</div>
+                    ) : (
+                      <div className="text-lol-red font-semibold">❌ Incorrect</div>
+                    )}
+                    <div className="text-gray-300 mt-2">
+                      Réponse correcte : <span className="text-lol-green font-semibold">{questions[currentQuestion].answer}</span>
+                    </div>
+                  </div>
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={nextQuestion}
-                    className="lol-button"
+                    className="w-full lol-button"
                   >
                     {currentQuestion + 1 < questions.length ? 'Question suivante' : 'Voir les résultats'}
                   </motion.button>
@@ -304,7 +398,7 @@ export default function QuizPage() {
                 Score final : {score}/{questions.length}
               </p>
               <p className="text-lg text-lol-gold font-bold mb-2">
-                {Math.round((score / questions.length) * 100)}/100 points
+                {score}/10 points
               </p>
               <p className="text-sm text-gray-400 mb-4">
                 Temps : {formatTime(timeSpent)}
@@ -313,15 +407,45 @@ export default function QuizPage() {
                 {getScoreMessage(score, questions.length)}
               </p>
 
+              {/* Player Stats */}
+              {playerStats && (
+                <div className="mb-8 p-6 bg-white/5 rounded-lg">
+                  <h3 className="text-white font-semibold mb-4 flex items-center justify-center gap-2">
+                    <Star className="w-4 h-4 text-lol-gold" />
+                    Vos statistiques
+                  </h3>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="text-center">
+                      <div className="text-lol-gold font-bold">{playerStats.bestScore}/10</div>
+                      <div className="text-gray-400">Meilleur score</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-lol-gold font-bold">{playerStats.averageScore}/10</div>
+                      <div className="text-gray-400">Score moyen</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-lol-gold font-bold">{playerStats.totalDaysPlayed}</div>
+                      <div className="text-gray-400">Jours joués</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-lol-gold font-bold">
+                        {new Date(playerStats.lastPlayed).toLocaleDateString('fr-FR')}
+                      </div>
+                      <div className="text-gray-400">Dernière partie</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Leaderboard */}
               {leaderboard && (
                 <div className="mb-8 p-6 bg-white/5 rounded-lg">
                   <h3 className="text-white font-semibold mb-4 flex items-center justify-center gap-2">
                     <Trophy className="w-4 h-4 text-lol-gold" />
-                    Classement du jour
+                    Classement du jour {currentDay}
                   </h3>
                   <div className="space-y-2">
-                    {leaderboard.scores.slice(0, 10).map((score: any, index: number) => (
+                    {leaderboard.scores.slice(0, 10).map((score, index) => (
                       <div key={score.id} className="flex items-center justify-between p-2 rounded bg-white/5">
                         <div className="flex items-center gap-2">
                           {index === 0 && <Crown className="w-4 h-4 text-lol-gold" />}
@@ -330,7 +454,7 @@ export default function QuizPage() {
                             <span className="text-lol-purple text-sm">(Vous)</span>
                           )}
                         </div>
-                        <span className="text-lol-gold font-bold">{score.score}/100</span>
+                        <span className="text-lol-gold font-bold">{score.score}/10</span>
                       </div>
                     ))}
                   </div>

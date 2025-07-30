@@ -8,6 +8,7 @@ import { getStoredSummoners } from '@/services/storageService';
 import AddSummonerForm from '@/components/AddSummonerForm';
 
 import PlayerCard from '@/components/PlayerCard';
+import DailyQuizPreview from '@/components/DailyQuizPreview';
 import Link from 'next/link';
 
 export default function HomePage() {
@@ -228,13 +229,23 @@ export default function HomePage() {
           </motion.div>
         )}
 
+        {/* Daily Quiz Preview */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="mt-8"
+        >
+          <DailyQuizPreview />
+        </motion.div>
+
         {/* Quick Actions */}
         {totalPlayers > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="mt-12 text-center"
+            transition={{ delay: 0.5 }}
+            className="mt-8 text-center"
           >
             <div className="glass-card p-6">
               <h3 className="text-lg font-semibold text-white mb-4">Actions rapides</h3>
@@ -249,14 +260,14 @@ export default function HomePage() {
                     <span>Voir le classement</span>
                   </motion.button>
                 </Link>
-                <Link href="/quiz">
+                <Link href="/daily-quiz">
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     className="lol-button-secondary"
                   >
                     <Target className="w-4 h-4" />
-                    <span>Quiz LoL</span>
+                    <span>Quiz Quotidien</span>
                   </motion.button>
                 </Link>
                 <Link href="/tierlist">

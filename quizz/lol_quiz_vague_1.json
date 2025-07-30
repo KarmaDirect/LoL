@@ -1,62 +1,362 @@
 [
   {
-    "question": "Qui a tué Isolde dans le lore de League of Legends ?",
+    "question": "Quel champion est surnommé 'Le Déserteur de Shurima' ?",
+    "options": [
+      "Renekton",
+      "Azir",
+      "Nasus",
+      "Xerath"
+    ],
+    "answer": "Renekton",
+    "category": "Champion",
+    "difficulty": "moyen"
+  },
+  {
+    "question": "Quelle est la compétence ultime de Garen ?",
+    "options": [
+      "Justice de Demacia",
+      "Jugement",
+      "Courage",
+      "Frappe décisive"
+    ],
+    "answer": "Justice de Demacia",
+    "category": "Champion",
+    "difficulty": "facile"
+  },
+  {
+    "question": "Quel champion se transforme en dragon ?",
+    "options": [
+      "Shyvana",
+      "Aurelion Sol",
+      "Sion",
+      "Skarner"
+    ],
+    "answer": "Shyvana",
+    "category": "Champion",
+    "difficulty": "facile"
+  },
+  {
+    "question": "Quel champion peut poser des tourelles ?",
+    "options": [
+      "Heimerdinger",
+      "Jhin",
+      "Jayce",
+      "Orianna"
+    ],
+    "answer": "Heimerdinger",
+    "category": "Champion",
+    "difficulty": "facile"
+  },
+  {
+    "question": "Quel champion a un grappin dans son kit ?",
+    "options": [
+      "Blitzcrank",
+      "Thresh",
+      "Nautilus",
+      "Tous"
+    ],
+    "answer": "Tous",
+    "category": "Champion",
+    "difficulty": "facile"
+  },
+  {
+    "question": "Quel champion est un yordle ninja ?",
+    "options": [
+      "Kennen",
+      "Teemo",
+      "Veigar",
+      "Poppy"
+    ],
+    "answer": "Kennen",
+    "category": "Champion",
+    "difficulty": "facile"
+  },
+  {
+    "question": "Quel champion a été maudit par la Brume noire ?",
     "options": [
       "Viego",
       "Thresh",
-      "Kalista",
-      "Lucian"
+      "Yorick",
+      "Hecarim"
+    ],
+    "answer": "Yorick",
+    "category": "Champion",
+    "difficulty": "moyen"
+  },
+  {
+    "question": "Quel champion possède une transformation en loup ?",
+    "options": [
+      "Warwick",
+      "Kindred",
+      "Volibear",
+      "Nasus"
+    ],
+    "answer": "Kindred",
+    "category": "Champion",
+    "difficulty": "moyen"
+  },
+  {
+    "question": "Quel champion a été entraîné par Shen ?",
+    "options": [
+      "Akali",
+      "Zed",
+      "Kennen",
+      "Jhin"
+    ],
+    "answer": "Akali",
+    "category": "Champion",
+    "difficulty": "moyen"
+  },
+  {
+    "question": "Quel champion utilise une faux et la magie des ombres ?",
+    "options": [
+      "Thresh",
+      "Kayn",
+      "Morgana",
+      "Fiddlesticks"
+    ],
+    "answer": "Kayn",
+    "category": "Champion",
+    "difficulty": "difficile"
+  },
+  {
+    "question": "Qui est le père de Jarvan IV ?",
+    "options": [
+      "Jarvan III",
+      "Garen",
+      "Xin Zhao",
+      "Swain"
+    ],
+    "answer": "Jarvan III",
+    "category": "Lore",
+    "difficulty": "facile"
+  },
+  {
+    "question": "Qui a scellé Aatrox ?",
+    "options": [
+      "Aspect du Soleil",
+      "Les mages de Shurima",
+      "Pantheon",
+      "Les Targoniens"
+    ],
+    "answer": "Les Targoniens",
+    "category": "Lore",
+    "difficulty": "moyen"
+  },
+  {
+    "question": "De quelle région vient Fiddlesticks ?",
+    "options": [
+      "Ixtal",
+      "Runeterra",
+      "Freljord",
+      "Inconnue"
+    ],
+    "answer": "Inconnue",
+    "category": "Lore",
+    "difficulty": "difficile"
+  },
+  {
+    "question": "Qui est la mère de Morgana et Kayle ?",
+    "options": [
+      "Mihira",
+      "Shan",
+      "Leona",
+      "On ne sait pas"
+    ],
+    "answer": "Mihira",
+    "category": "Lore",
+    "difficulty": "moyen"
+  },
+  {
+    "question": "Quel roi est revenu à la vie grâce à la Brume noire ?",
+    "options": [
+      "Viego",
+      "Jarvan III",
+      "Tryndamere",
+      "Ornn"
     ],
     "answer": "Viego",
-    "difficulty": "difficile",
-    "category": "lore"
+    "category": "Lore",
+    "difficulty": "facile"
   },
   {
-    "question": "Quelle équipe a remporté les Worlds 2016 de League of Legends ?",
+    "question": "Qui a tué Senna ?",
     "options": [
-      "SK Telecom T1",
-      "Samsung Galaxy",
-      "ROX Tigers",
-      "G2 Esports"
+      "Lucian",
+      "Thresh",
+      "Viego",
+      "Yone"
     ],
-    "answer": "SK Telecom T1",
-    "difficulty": "moyen",
-    "category": "e-sport"
+    "answer": "Thresh",
+    "category": "Lore",
+    "difficulty": "facile"
   },
   {
-    "question": "Quel champion possède une compétence nommée 'Living Shadow' ?",
+    "question": "Comment s'appelle le dragon de Galio ?",
     "options": [
+      "Il n’en a pas",
+      "Durand",
+      "Aurelion",
+      "Petricite"
+    ],
+    "answer": "Il n’en a pas",
+    "category": "Lore",
+    "difficulty": "facile"
+  },
+  {
+    "question": "Quelle entité a choisi Rakan et Xayah ?",
+    "options": [
+      "Les Vastayas",
+      "Le Vide",
+      "La Brume",
+      "L'ordre de l'ombre"
+    ],
+    "answer": "Les Vastayas",
+    "category": "Lore",
+    "difficulty": "moyen"
+  },
+  {
+    "question": "Quel est le vrai nom de Jhin ?",
+    "options": [
+      "Khada Jhin",
       "Zed",
-      "Shen",
-      "Nocturne",
-      "Kayn"
+      "Jinzo",
+      "Jinhai"
     ],
-    "answer": "Zed",
-    "difficulty": "facile",
-    "category": "champion"
+    "answer": "Khada Jhin",
+    "category": "Lore",
+    "difficulty": "difficile"
   },
   {
-    "question": "Quel est l’objet mythique typique des mages burst ?",
+    "question": "Quel être céleste a créé Aurelion Sol ?",
     "options": [
-      "Écho de Luden",
-      "Liandry Tourment",
-      "Ceinture-Roquette Hextech",
-      "Riftmaker"
+      "Les Aspects",
+      "Les Targoniens",
+      "Le Néant",
+      "Personne"
     ],
-    "answer": "Écho de Luden",
-    "difficulty": "moyen",
-    "category": "item"
+    "answer": "Les Targoniens",
+    "category": "Lore",
+    "difficulty": "difficile"
   },
   {
-    "question": "Quel est le rôle principal de Sejuani ?",
+    "question": "Quel objet donne de la létalité ?",
     "options": [
-      "Top",
-      "Jungle",
-      "Mid",
-      "ADC"
+      "Épée vespérale de Draktharr",
+      "Bâton du vide",
+      "Voile de la banshee",
+      "Coiffe de Rabadon"
     ],
-    "answer": "Jungle",
-    "difficulty": "facile",
-    "category": "gameplay"
+    "answer": "Épée vespérale de Draktharr",
+    "category": "Item",
+    "difficulty": "facile"
+  },
+  {
+    "question": "Quel objet mythique de tank donne un bouclier ?",
+    "options": [
+      "Égide solaire",
+      "Chant de guerre de Shurelya",
+      "Vertu radieuse",
+      "Cœuracier"
+    ],
+    "answer": "Vertu radieuse",
+    "category": "Item",
+    "difficulty": "moyen"
+  },
+  {
+    "question": "Quel objet est utilisé pour contrer un AP fort ?",
+    "options": [
+      "Voile de la banshee",
+      "Ange gardien",
+      "Hydre vorace",
+      "Arc bouclier"
+    ],
+    "answer": "Voile de la banshee",
+    "category": "Item",
+    "difficulty": "moyen"
+  },
+  {
+    "question": "Quel objet mythique est utilisé par les assassins AD ?",
+    "options": [
+      "Draktharr",
+      "Gueule de Malmortius",
+      "Sterak",
+      "Sceptre de Rylai"
+    ],
+    "answer": "Draktharr",
+    "category": "Item",
+    "difficulty": "facile"
+  },
+  {
+    "question": "Quel objet donne le plus de puissance magique brute ?",
+    "options": [
+      "Coiffe de Rabadon",
+      "Bâton du vide",
+      "Étreinte démoniaque",
+      "Morellonomicon"
+    ],
+    "answer": "Coiffe de Rabadon",
+    "category": "Item",
+    "difficulty": "facile"
+  },
+  {
+    "question": "Quel objet donne des PV, de la régénération et une bulle ?",
+    "options": [
+      "Égide solaire",
+      "Warmog",
+      "Médaillon de l’Iron Solari",
+      "Rédemption"
+    ],
+    "answer": "Warmog",
+    "category": "Item",
+    "difficulty": "moyen"
+  },
+  {
+    "question": "Quel objet peut ralentir les ennemis avec des sorts ?",
+    "options": [
+      "Sceptre de Rylai",
+      "Lame spectre",
+      "Voile de la banshee",
+      "Cape solaire"
+    ],
+    "answer": "Sceptre de Rylai",
+    "category": "Item",
+    "difficulty": "facile"
+  },
+  {
+    "question": "Quel objet convertit la mana en dégâts ?",
+    "options": [
+      "Muramana",
+      "Larme de la déesse",
+      "Bâton de l'Archange",
+      "Force de la trinité"
+    ],
+    "answer": "Muramana",
+    "category": "Item",
+    "difficulty": "moyen"
+  },
+  {
+    "question": "Quel item de support soigne les alliés à distance ?",
+    "options": [
+      "Encensoir ardent",
+      "Rédemption",
+      "Chant de guerre",
+      "Solari"
+    ],
+    "answer": "Rédemption",
+    "category": "Item",
+    "difficulty": "facile"
+  },
+  {
+    "question": "Quel objet peut ressusciter un champion ?",
+    "options": [
+      "Ange gardien",
+      "Voile de la Banshee",
+      "Cœur gelé",
+      "Rappel mortel"
+    ],
+    "answer": "Ange gardien",
+    "category": "Item",
+    "difficulty": "facile"
   }
 ]

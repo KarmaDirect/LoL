@@ -1,14 +1,15 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Gamepad2, Trophy, Home, Brain, Users, User } from 'lucide-react';
+import { Gamepad2, Trophy, Home, Users, User, Calendar, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const navItems = [
   { href: '/', icon: Home, label: 'Accueil' },
   { href: '/leaderboard', icon: Trophy, label: 'Leaderboard' },
-  { href: '/quiz', icon: Brain, label: 'Quiz LoL' },
+  { href: '/daily-quiz', icon: Calendar, label: 'Quiz Quotidien' },
+  { href: '/quiz-stats', icon: TrendingUp, label: 'Stats Quiz' },
   { href: '/tierlist', icon: Users, label: 'Tier List' },
   { href: '/profile', icon: User, label: 'Profil' },
 ];
