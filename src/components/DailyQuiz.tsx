@@ -14,6 +14,7 @@ import {
   getCurrentDayNumber,
   getDailyQuizStats
 } from '@/services/dailyQuizService';
+import QuizDebug from './QuizDebug';
 
 export default function DailyQuiz() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -163,6 +164,8 @@ export default function DailyQuiz() {
     return (
       <div className="min-h-screen bg-lol-dark">
         <div className="max-w-4xl mx-auto px-6 py-8">
+          {/* Composant de debug - à supprimer en production */}
+          <QuizDebug />
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

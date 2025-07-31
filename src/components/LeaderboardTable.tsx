@@ -3,14 +3,18 @@
 import { useState } from 'react';
 import { PlayerRank } from '@/types/league';
 import { Trophy, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { useLiveGames } from '@/hooks/useLiveGames';
+import LiveIndicator from './LiveIndicator';
 
 interface LeaderboardTableProps {
   players: PlayerRank[];
   onPlayerClick?: (playerName: string) => void;
+  onLiveClick?: (playerName: string) => void;
 }
 
-export default function LeaderboardTable({ players, onPlayerClick }: LeaderboardTableProps) {
+export default function LeaderboardTable({ players, onPlayerClick, onLiveClick }: LeaderboardTableProps) {
   const [sortBy, setSortBy] = useState<'rank' | 'winrate' | 'games'>('rank');
+  const { isPlayerLive, getPlayerLiveGame } = useLiveGames();
 
   const getRankColor = (tier: string) => {
     const colors: Record<string, string> = {
@@ -133,7 +137,19 @@ export default function LeaderboardTable({ players, onPlayerClick }: Leaderboard
                   </div>
                 </td>
                 <td className="py-4 px-4">
-                  <span className="font-medium text-white">{player.summonerName}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium text-white">{player.summonerName}</span>
+                    {isPlayerLive(player.summonerName) && (
+                      <LiveIndicator
+                        isLive={true}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onLiveClick?.(player.summonerName);
+                        }}
+                        size="sm"
+                      />
+                    )}
+                  </div>
                 </td>
                 <td className="py-4 px-4">
                   <span className={getRankBadge(player.tier, player.rank)}>

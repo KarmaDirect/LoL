@@ -5,12 +5,18 @@ import { motion } from 'framer-motion';
 import { Trophy, Crown, TrendingUp, Users, ChevronUp, ChevronDown } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 import { getRankIcon, getRankColor, getRankScore, sortPlayersByRank, formatRankDisplay } from '@/services/descriptionService';
+import { useLiveGames } from '@/hooks/useLiveGames';
+import LiveGameModal from '@/components/LiveGameModal';
+import { LiveGameInfo } from '@/types/liveGame';
 
 export default function LeaderboardPage() {
   const { storedSummoners, playerRanks, playerStats } = useApp();
+  const { getPlayerLiveGame } = useLiveGames();
   const [sortedPlayers, setSortedPlayers] = useState<any[]>([]);
   const [expandedPlayer, setExpandedPlayer] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'rank' | 'winrate' | 'games' | 'impact'>('rank');
+  const [selectedGame, setSelectedGame] = useState<LiveGameInfo | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const playersWithData = storedSummoners
@@ -68,6 +74,14 @@ export default function LeaderboardPage() {
 
   const getRankDisplay = (player: any) => {
     return formatRankDisplay(player.rank.tier, player.rank.rank, player.rank.leaguePoints);
+  };
+
+  const handleLiveClick = (summonerName: string) => {
+    const game = getPlayerLiveGame(summonerName);
+    if (game) {
+      setSelectedGame(game);
+      setIsModalOpen(true);
+    }
   };
 
   return (
@@ -298,6 +312,16 @@ export default function LeaderboardPage() {
             </div>
           )}
         </motion.div>
+
+        {/* Modal pour afficher les détails de la partie */}
+        <LiveGameModal
+          liveGame={selectedGame}
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+            setSelectedGame(null);
+          }}
+        />
       </div>
     </div>
   );

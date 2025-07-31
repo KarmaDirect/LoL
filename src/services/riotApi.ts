@@ -5,11 +5,11 @@ export class RiotApiService {
   // Récupérer les informations d'un summoner par son nom
   static async getSummonerByName(summonerName: string): Promise<Summoner> {
     try {
-      const response = await fetch(`/api/summoner?summonerName=${encodeURIComponent(summonerName)}`);
+      const response = await fetch(`/api/summoner?name=${encodeURIComponent(summonerName)}`);
       
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || `Erreur ${response.status}`);
+        throw new Error(errorData.error || `Erreur ${response.status}`);
       }
       
       const data = await response.json();
@@ -101,23 +101,25 @@ export class RiotApiService {
           losses: 0,
           winrate: 0,
           totalGames: 0,
+          queueType: 'RANKED_SOLO_5x5'
         };
       }
       
+      // Calculer le winrate
       const totalGames = soloQRank.wins + soloQRank.losses;
-      const winrate = totalGames > 0 ? Math.round((soloQRank.wins / totalGames) * 100) : 0;
+      const winrate = totalGames > 0 ? (soloQRank.wins / totalGames) * 100 : 0;
       
       return {
-        summonerName: summoner.name,
+        summonerName: soloQRank.summonerName,
         tier: soloQRank.tier,
         rank: soloQRank.rank,
         leaguePoints: soloQRank.leaguePoints,
         wins: soloQRank.wins,
         losses: soloQRank.losses,
-        winrate,
+        winrate: Math.round(winrate * 100) / 100,
         totalGames,
+        queueType: soloQRank.queueType
       };
-      
     } catch (error) {
       console.error('Erreur lors de la récupération du rank:', error);
       throw error;

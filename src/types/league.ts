@@ -1,4 +1,4 @@
-// Types pour League Squad Tracker V2
+// Types pour Les Parias Tracker V2
 
 export interface Summoner {
   id: string;

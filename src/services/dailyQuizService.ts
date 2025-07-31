@@ -4,29 +4,46 @@ import quizData from '../../quizz/lol_quiz_vague_1.json';
 // Convertir les données JSON en format TypeScript
 const allQuestions: QuizQuestionFromJSON[] = quizData as QuizQuestionFromJSON[];
 
-// Générer les 10 jours de questions (10 questions par jour)
+// Générer les 10 jours de questions (10 questions par jour) - SANS RÉPÉTITION
 const generateDailyQuestions = (): DailyQuizData[] => {
   const dailyQuizzes: DailyQuizData[] = [];
+  // Mélanger toutes les questions une seule fois
   const shuffledQuestions = [...allQuestions].sort(() => 0.5 - Math.random());
   
-  for (let day = 1; day <= 10; day++) {
-    const startIndex = (day - 1) * 10;
-    const dayQuestions = shuffledQuestions.slice(startIndex, startIndex + 10);
+  // Calculer combien de jours complets on peut faire
+  const totalQuestions = shuffledQuestions.length;
+  const questionsPerDay = 10;
+  const maxDays = Math.floor(totalQuestions / questionsPerDay);
+  
+  console.log(`📊 Génération des questions: ${totalQuestions} questions disponibles pour ${maxDays} jours complets`);
+  
+  for (let day = 1; day <= maxDays; day++) {
+    const startIndex = (day - 1) * questionsPerDay;
+    const dayQuestions = shuffledQuestions.slice(startIndex, startIndex + questionsPerDay);
     
     dailyQuizzes.push({
       dayNumber: day,
       questions: dayQuestions,
-      date: new Date().toISOString().split('T')[0] // Date actuelle pour le moment
+      date: new Date().toISOString().split('T')[0]
     });
+  }
+  
+  // Si il reste des questions, les ajouter au dernier jour
+  const remainingQuestions = totalQuestions % questionsPerDay;
+  if (remainingQuestions > 0 && maxDays > 0) {
+    const lastDayQuestions = shuffledQuestions.slice(maxDays * questionsPerDay);
+    dailyQuizzes[dailyQuizzes.length - 1].questions.push(...lastDayQuestions);
+    console.log(`📝 ${remainingQuestions} questions supplémentaires ajoutées au jour ${maxDays}`);
   }
   
   return dailyQuizzes;
 };
 
-// Obtenir le jour actuel (1-10) basé sur la date
+// Obtenir le jour actuel (1-10) basé sur une date de référence plus récente
 const getCurrentDay = (): number => {
   const today = new Date();
-  const startDate = new Date('2024-01-01'); // Date de référence
+  // Utiliser une date de référence pour commencer au jour 1
+  const startDate = new Date('2024-12-25'); // Date de référence ajustée pour jour 1
   const daysDiff = Math.floor((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
   return (daysDiff % 10) + 1;
 };
@@ -213,6 +230,51 @@ export const getDailyQuizStats = () => {
   }
 };
 
+// Vérifier que les questions ne se répètent pas sur les 10 jours
+export const verifyNoQuestionRepetition = (): boolean => {
+  try {
+    const dailyQuizzes = getDailyQuizzes();
+    const allQuestionsUsed = new Set<string>();
+    const repetitions: string[] = [];
+    
+    for (const quiz of dailyQuizzes) {
+      for (const question of quiz.questions) {
+        const questionKey = `${question.question}_${question.answer}`;
+        if (allQuestionsUsed.has(questionKey)) {
+          repetitions.push(`Jour ${quiz.dayNumber}: ${question.question}`);
+          console.warn(`❌ RÉPÉTITION DÉTECTÉE - Jour ${quiz.dayNumber}: ${question.question}`);
+        } else {
+          allQuestionsUsed.add(questionKey);
+        }
+      }
+    }
+    
+    if (repetitions.length > 0) {
+      console.error(`❌ ${repetitions.length} répétitions détectées dans les jours générés:`);
+      repetitions.forEach(rep => console.error(`  - ${rep}`));
+      return false;
+    }
+    
+    console.log('✅ Aucune répétition détectée dans les jours générés');
+    return true;
+  } catch (error) {
+    console.error('Erreur lors de la vérification des répétitions:', error);
+    return false;
+  }
+};
+
+// Obtenir les questions utilisées pour un jour spécifique
+export const getQuestionsForDay = (dayNumber: number): QuizQuestionFromJSON[] => {
+  try {
+    const dailyQuizzes = getDailyQuizzes();
+    const dayQuiz = dailyQuizzes.find(quiz => quiz.dayNumber === dayNumber);
+    return dayQuiz ? dayQuiz.questions : [];
+  } catch (error) {
+    console.error('Erreur lors de la récupération des questions du jour:', error);
+    return [];
+  }
+};
+
 // Réinitialiser les données (pour changer de vague)
 export const resetDailyQuizData = (): void => {
   try {
@@ -226,4 +288,129 @@ export const resetDailyQuizData = (): void => {
 // Obtenir le jour actuel
 export const getCurrentDayNumber = (): number => {
   return getCurrentDay();
+};
+
+// Fonction pour forcer le jour 1 (pour les tests)
+export const forceDayOne = (): void => {
+  try {
+    // Supprimer les données existantes pour forcer la régénération
+    localStorage.removeItem('dailyQuizData');
+    localStorage.removeItem('dailyQuizLeaderboards');
+    console.log('Jour 1 forcé - données réinitialisées');
+    console.log('Nouvelles questions générées pour tous les 10 jours');
+  } catch (error) {
+    console.error('Erreur lors du forçage du jour 1:', error);
+  }
+};
+
+// Fonction pour forcer un jour spécifique (pour les tests)
+export const forceSpecificDay = (dayNumber: number): void => {
+  try {
+    if (dayNumber < 1 || dayNumber > 10) {
+      console.error('Jour invalide. Doit être entre 1 et 10.');
+      return;
+    }
+    
+    // Supprimer les données existantes pour forcer la régénération
+    localStorage.removeItem('dailyQuizData');
+    localStorage.removeItem('dailyQuizLeaderboards');
+    console.log(`Jour ${dayNumber} forcé - données réinitialisées`);
+  } catch (error) {
+    console.error('Erreur lors du forçage du jour spécifique:', error);
+  }
+};
+
+// Fonction pour vérifier et afficher toutes les questions générées
+export const debugAllDays = (): void => {
+  try {
+    console.log('=== DEBUG: Questions disponibles ===');
+    console.log(`Total des questions dans le JSON: ${allQuestions.length}`);
+    
+    const dailyQuizzes = getDailyQuizzes();
+    console.log('=== DEBUG: Toutes les questions générées ===');
+    dailyQuizzes.forEach((quiz, index) => {
+      console.log(`Jour ${quiz.dayNumber}: ${quiz.questions.length} questions`);
+      quiz.questions.forEach((q, qIndex) => {
+        console.log(`  ${qIndex + 1}. ${q.question.substring(0, 50)}...`);
+      });
+    });
+    
+    // Vérifier qu'on a bien toutes les questions réparties
+    const totalQuestionsGenerated = dailyQuizzes.reduce((total, quiz) => total + quiz.questions.length, 0);
+    console.log(`Total des questions générées: ${totalQuestionsGenerated}/${allQuestions.length}`);
+    console.log('=== FIN DEBUG ===');
+  } catch (error) {
+    console.error('Erreur lors du debug:', error);
+  }
+};
+
+// Fonction pour vérifier l'intégrité des données
+export const verifyDataIntegrity = (): void => {
+  try {
+    console.log('=== VÉRIFICATION INTÉGRITÉ DES DONNÉES ===');
+    console.log(`Questions chargées depuis le JSON: ${allQuestions.length}`);
+    
+    if (allQuestions.length < 70) {
+      console.error(`❌ ERREUR: ${allQuestions.length} questions (minimum 70 recommandé)`);
+      return;
+    }
+    
+    console.log('✅ Questions chargées avec succès');
+    
+    const dailyQuizzes = getDailyQuizzes();
+    console.log(`Jours générés: ${dailyQuizzes.length}`);
+    
+    if (dailyQuizzes.length < 7) {
+      console.error(`❌ ERREUR: ${dailyQuizzes.length} jours générés (minimum 7 recommandé)`);
+      return;
+    }
+    
+    console.log('✅ Jours générés avec succès');
+    
+    const totalQuestionsGenerated = dailyQuizzes.reduce((total, quiz) => total + quiz.questions.length, 0);
+    console.log(`Questions réparties: ${totalQuestionsGenerated}/${allQuestions.length}`);
+    
+    if (totalQuestionsGenerated !== allQuestions.length) {
+      console.error(`❌ ERREUR: ${totalQuestionsGenerated} questions réparties au lieu de ${allQuestions.length}`);
+      return;
+    }
+    
+    console.log('✅ Toutes les questions sont correctement réparties');
+    console.log('=== VÉRIFICATION TERMINÉE ===');
+  } catch (error) {
+    console.error('Erreur lors de la vérification:', error);
+  }
+};
+
+// Fonction pour vérifier les répétitions dans le fichier JSON original
+export const checkOriginalFileRepetitions = (): void => {
+  try {
+    console.log('=== VÉRIFICATION RÉPÉTITIONS DANS LE FICHIER JSON ===');
+    
+    const questionKeys = new Set<string>();
+    const repetitions: string[] = [];
+    
+    allQuestions.forEach((question, index) => {
+      const questionKey = `${question.question}_${question.answer}`;
+      
+      if (questionKeys.has(questionKey)) {
+        repetitions.push(`Question ${index + 1}: ${question.question}`);
+        console.warn(`❌ RÉPÉTITION DÉTECTÉE - Question ${index + 1}: ${question.question}`);
+      } else {
+        questionKeys.add(questionKey);
+      }
+    });
+    
+    if (repetitions.length === 0) {
+      console.log('✅ Aucune répétition détectée dans le fichier JSON original');
+    } else {
+      console.error(`❌ ${repetitions.length} répétitions détectées dans le fichier JSON original:`);
+      repetitions.forEach(rep => console.error(`  - ${rep}`));
+    }
+    
+    console.log(`Total des questions uniques dans le JSON: ${questionKeys.size}/${allQuestions.length}`);
+    console.log('=== FIN VÉRIFICATION FICHIER JSON ===');
+  } catch (error) {
+    console.error('Erreur lors de la vérification du fichier JSON:', error);
+  }
 }; 

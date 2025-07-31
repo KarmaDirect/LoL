@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import { Crown, Target, TrendingUp, Clock, Trash2 } from 'lucide-react';
 import { PlayerRank, PlayerStats } from '@/types/league';
 import { generateGameDescription, getRankIcon, getRankColor } from '@/services/descriptionService';
+import { useLiveGames } from '@/hooks/useLiveGames';
+import LiveIndicator from './LiveIndicator';
 
 interface PlayerCardProps {
   summonerName: string;
@@ -11,9 +13,11 @@ interface PlayerCardProps {
   stats: PlayerStats[];
   photoUrl?: string;
   onRemove?: () => void;
+  onLiveClick?: () => void;
 }
 
-export default function PlayerCard({ summonerName, rank, stats, photoUrl, onRemove }: PlayerCardProps) {
+export default function PlayerCard({ summonerName, rank, stats, photoUrl, onRemove, onLiveClick }: PlayerCardProps) {
+  const { isPlayerLive } = useLiveGames();
   const averageImpactScore = stats.length > 0 
     ? Math.round(stats.reduce((sum, stat) => sum + stat.impactScore, 0) / stats.length)
     : 0;
@@ -46,7 +50,19 @@ export default function PlayerCard({ summonerName, rank, stats, photoUrl, onRemo
         </div>
         
         <div className="flex-1">
-          <h3 className="text-xl font-bold text-white mb-1">{summonerName}</h3>
+          <div className="flex items-center gap-2 mb-1">
+            <h3 className="text-xl font-bold text-white">{summonerName}</h3>
+            {isPlayerLive(summonerName) && (
+              <LiveIndicator
+                isLive={true}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onLiveClick?.();
+                }}
+                size="sm"
+              />
+            )}
+          </div>
           <div className="flex items-center gap-3">
             <span className={`font-semibold ${getRankColor(rank.tier)}`}>
               {rank.tier} {rank.rank}

@@ -1,15 +1,15 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Gamepad2, Trophy, Home, Users, User, Calendar, TrendingUp } from 'lucide-react';
+import { Trophy, Calendar, Radio, Users, User } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import Image from 'next/image';
 
 const navItems = [
-  { href: '/', icon: Home, label: 'Accueil' },
   { href: '/leaderboard', icon: Trophy, label: 'Leaderboard' },
   { href: '/daily-quiz', icon: Calendar, label: 'Quiz Quotidien' },
-  { href: '/quiz-stats', icon: TrendingUp, label: 'Stats Quiz' },
+  { href: '/live', icon: Radio, label: 'Suivi Direct' },
   { href: '/tierlist', icon: Users, label: 'Tier List' },
   { href: '/profile', icon: User, label: 'Profil' },
 ];
@@ -25,21 +25,27 @@ export default function Header() {
     >
       <div className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
-          {/* Logo */}
-          <motion.div 
-            whileHover={{ scale: 1.05 }}
-            className="flex items-center gap-4"
-          >
-            <div className="p-3 bg-gradient-to-br from-lol-blue to-lol-purple rounded-xl shadow-lg">
-              <Gamepad2 className="w-8 h-8 text-white" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gradient">
-                League Squad
-              </h1>
-              <p className="text-sm text-gray-400">Performance tracking immersif</p>
-            </div>
-          </motion.div>
+          {/* Logo cliquable */}
+          <Link href="/">
+            <motion.div 
+              whileHover={{ scale: 1.05 }}
+              className="flex items-center gap-4 cursor-pointer"
+            >
+              <div className="p-2 bg-black rounded-xl shadow-lg border border-red-500/30">
+                <Image
+                  src="/vrai-logo.png"
+                  alt="Les Parias Logo"
+                  width={40}
+                  height={40}
+                />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gradient">
+                  Les Parias
+                </h1>
+              </div>
+            </motion.div>
+          </Link>
           
           {/* Navigation */}
           <nav className="flex items-center gap-2">
@@ -48,7 +54,7 @@ export default function Header() {
                 <motion.button 
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
+                  className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all duration-300 min-w-[120px] justify-center ${
                     pathname === item.href 
                       ? 'bg-gradient-to-r from-lol-blue to-lol-purple text-white shadow-lg' 
                       : 'bg-white/5 text-gray-300 hover:bg-white/10 hover:text-white'

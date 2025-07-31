@@ -4,12 +4,16 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Users, Plus, RefreshCw, Info, Gamepad2, BarChart3, Crown, Target, Zap, Eye, Clock, Trophy } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
-import { getStoredSummoners } from '@/services/storageService';
+import { getStoredSummoners, addSummoner, removeSummoner } from '@/services/storageService';
 import AddSummonerForm from '@/components/AddSummonerForm';
 
 import PlayerCard from '@/components/PlayerCard';
 import DailyQuizPreview from '@/components/DailyQuizPreview';
+import LiveStatusSection from '@/components/LiveStatusSection';
+import LiveGameModal from '@/components/LiveGameModal';
 import Link from 'next/link';
+import { useLiveGames } from '@/hooks/useLiveGames';
+import { LiveGameInfo } from '@/types/liveGame';
 
 export default function HomePage() {
   const {
@@ -21,31 +25,53 @@ export default function HomePage() {
     loadPlayerData,
     refreshData,
     lastUpdate,
-    setStoredSummoners
+    setStoredSummoners,
+    setError
   } = useApp();
+  const { getPlayerLiveGame } = useLiveGames();
 
   const [showAddForm, setShowAddForm] = useState(false);
+  const [selectedGame, setSelectedGame] = useState<LiveGameInfo | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleAddSummoner = async (summonerName: string) => {
     try {
-      const newSummoner = { name: summonerName };
-      const currentSummoners = getStoredSummoners();
-      const updatedSummoners = [...currentSummoners, newSummoner];
+      // Utiliser le service de stockage pour ajouter le joueur
+      addSummoner(summonerName);
       
-      localStorage.setItem('storedSummoners', JSON.stringify(updatedSummoners));
+      // Mettre à jour l'état local
+      const updatedSummoners = getStoredSummoners();
       setStoredSummoners(updatedSummoners);
       
+      // Charger les données du nouveau joueur
       await loadPlayerData(summonerName);
       setShowAddForm(false);
     } catch (error) {
       console.error('Erreur lors de l\'ajout du summoner:', error);
+      setError(error instanceof Error ? error.message : 'Erreur lors de l\'ajout du joueur');
     }
   };
 
   const handleRemoveSummoner = (summonerName: string) => {
-    const updatedSummoners = storedSummoners.filter(s => s.name !== summonerName);
-    localStorage.setItem('storedSummoners', JSON.stringify(updatedSummoners));
-    setStoredSummoners(updatedSummoners);
+    try {
+      // Utiliser le service de stockage pour supprimer le joueur
+      removeSummoner(summonerName);
+      
+      // Mettre à jour l'état local
+      const updatedSummoners = getStoredSummoners();
+      setStoredSummoners(updatedSummoners);
+    } catch (error) {
+      console.error('Erreur lors de la suppression du summoner:', error);
+      setError(error instanceof Error ? error.message : 'Erreur lors de la suppression du joueur');
+    }
+  };
+
+  const handleLiveClick = (summonerName: string) => {
+    const game = getPlayerLiveGame(summonerName);
+    if (game) {
+      setSelectedGame(game);
+      setIsModalOpen(true);
+    }
   };
 
   const totalPlayers = storedSummoners.length;
@@ -87,6 +113,9 @@ export default function HomePage() {
             </div>
           </motion.div>
         )}
+
+        {/* Live Status Section */}
+        <LiveStatusSection />
 
         {/* Summary Stats */}
         <motion.div
@@ -198,6 +227,7 @@ export default function HomePage() {
                     rank={rank || { summonerName: summoner.name, tier: 'UNRANKED', rank: '', leaguePoints: 0, wins: 0, losses: 0, winrate: 0, totalGames: 0 }}
                     stats={stats}
                     onRemove={() => handleRemoveSummoner(summoner.name)}
+                    onLiveClick={() => handleLiveClick(summoner.name)}
                   />
                 </motion.div>
               );
@@ -284,6 +314,16 @@ export default function HomePage() {
             </div>
           </motion.div>
         )}
+
+        {/* Modal pour afficher les détails de la partie */}
+        <LiveGameModal
+          liveGame={selectedGame}
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+            setSelectedGame(null);
+          }}
+        />
       </main>
     </div>
   );

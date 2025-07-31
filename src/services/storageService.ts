@@ -14,6 +14,36 @@ export function getStoredSummoners(): StoredSummoner[] {
   }
 }
 
+// Fonction de migration pour convertir les noms au format Nom#Tag
+export function migrateSummonerNames(): void {
+  if (typeof window === 'undefined') return;
+  
+  try {
+    const summoners = getStoredSummoners();
+    let hasChanges = false;
+    
+    const migratedSummoners = summoners.map(summoner => {
+      // Si le nom ne contient pas de #, ajouter un tag par défaut
+      if (!summoner.name.includes('#')) {
+        hasChanges = true;
+        console.log(`🔄 Migration: ${summoner.name} -> ${summoner.name}#EUW`);
+        return {
+          ...summoner,
+          name: `${summoner.name}#EUW`
+        };
+      }
+      return summoner;
+    });
+    
+    if (hasChanges) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(migratedSummoners));
+      console.log('✅ Migration des noms de summoners terminée');
+    }
+  } catch (error) {
+    console.error('Erreur lors de la migration des noms:', error);
+  }
+}
+
 export function addSummoner(name: string): boolean {
   if (typeof window === 'undefined') return false;
   

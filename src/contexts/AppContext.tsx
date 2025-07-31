@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { StoredSummoner, PlayerRank, PlayerStats } from '@/types/league';
-import { getStoredSummoners } from '@/services/storageService';
+import { getStoredSummoners, migrateSummonerNames } from '@/services/storageService';
 import { RiotApiService } from '@/services/riotApi';
 
 interface AppContextType {
@@ -85,6 +85,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   // Charger les summoners stockés au démarrage
   useEffect(() => {
+    // Exécuter la migration des noms au démarrage
+    migrateSummonerNames();
+    
     const summoners = getStoredSummoners();
     setStoredSummoners(summoners);
     
