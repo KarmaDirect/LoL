@@ -6,13 +6,13 @@ export interface LiveGamePlayer {
   summonerId: string;
   summonerName: string;
   championId: number;
-  championName?: string;
+  championName: string;
   teamId: number;
   spell1Id: number;
   spell2Id: number;
-  role?: string;
   lane?: string;
-  isTrackedPlayer?: boolean;
+  role?: string;
+  isTrackedPlayer: boolean;
 }
 
 export interface LiveGame {
@@ -31,8 +31,19 @@ export interface LiveGame {
 }
 
 export interface LiveGameInfo {
-  player: Friend;
-  game: LiveGame;
+  player: {
+    summonerName: string;
+    summonerId: string;
+    puuid: string;
+  };
+  game: {
+    gameId: string;
+    gameMode: string;
+    gameType: string;
+    gameStartTime: number;
+    mapId: number;
+    participants: LiveGamePlayer[];
+  };
   lastUpdated: number;
 }
 

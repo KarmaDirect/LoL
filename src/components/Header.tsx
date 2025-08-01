@@ -39,11 +39,11 @@ export default function Header() {
                   height={40}
                 />
               </div>
-              <div>
-                <h1 className="text-2xl font-bold text-gradient">
-                  Les Parias
-                </h1>
-              </div>
+                             <div>
+                 <h1 className="text-2xl font-bold text-white">
+                   Les Parias
+                 </h1>
+               </div>
             </motion.div>
           </Link>
           
